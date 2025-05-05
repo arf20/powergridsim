@@ -4,10 +4,10 @@ CXX := g++
 
 all: $(BINARY)
 
-CXXFLAGS := $(shell sdl2-config --cflags) -I./imgui -I./imgui/backends
+CXXFLAGS := $(shell sdl2-config --cflags) -I./imgui -I./imgui/backends -g -pedantic -Wall
 LDFLAGS := $(shell sdl2-config --libs) -lGL
 
-IMGUI_SRC := imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_widgets.cpp imgui/imgui_tables.cpp imgui/imgui_demo.cpp imgui/backends/imgui_impl_sdl2.cpp imgui/backends/imgui_impl_sdlrenderer2.cpp
+IMGUI_SRC := imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_widgets.cpp imgui/imgui_tables.cpp imgui/imgui_demo.cpp imgui/backends/imgui_impl_sdl2.cpp imgui/backends/imgui_impl_opengl3.cpp
 SRC := imgui_custom.cpp main.cpp
 
 IMGUI_OBJ := $(patsubst %.cpp,%.o,$(IMGUI_SRC))
