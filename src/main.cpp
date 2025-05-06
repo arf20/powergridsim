@@ -1,27 +1,13 @@
 #include <iostream>
 
-#include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_sdl2.h"
-#include "imgui/backends/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "backends/imgui_impl_sdl2.h"
+#include "backends/imgui_impl_opengl3.h"
 
 #include <SDL.h>
 #include <SDL_opengl.h>
 
-#include "imgui_custom.h"
-
-void win_powergrid() {
-    ImGui::Begin("Power Grid Status");
-
-    static float t = 0.0f;
-    t += 0.05;
-
-    ImGui::Text("synchroscope");
-    ImGui::Synchro(t, 120.0f);
-    ImGui::Text("gauge");
-    ImGui::Gauge(100.0f*t, 0.0f, 4500.0f, "V", 120.0f);
-
-    ImGui::End();
-}
+#include "gui.h"
 
 
 int main() {
@@ -50,6 +36,8 @@ int main() {
         printf("error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
         return -1;
     }
+
+    SDL_GL_SetSwapInterval(-1); // adaptive vsync
     
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
@@ -87,11 +75,9 @@ int main() {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-
-
         ImGui::ShowDemoWindow(&show_demo_window);
 
-        win_powergrid();
+        render_gui();
 
         ImGui::Render();
         glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);

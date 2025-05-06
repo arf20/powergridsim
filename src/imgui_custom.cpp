@@ -69,7 +69,7 @@ void ImGui::Synchro(float angle, const float& sz) {
 
     // arrow
     static ImVec2 t_arrow[6];
-    for (int i = 0; i < sizeof(arrow)/sizeof(*arrow); i++)
+    for (size_t i = 0; i < sizeof(arrow)/sizeof(*arrow); i++)
         t_arrow[i] = add(c, scale(rotate(arrow[i], angle), sz*0.4));
     draw_list->AddConvexPolyFilled(t_arrow, 6, col);
 
@@ -103,11 +103,13 @@ void ImGui::Gauge(float val, float min, float max, const char *unit, const float
     draw_list->AddCircleFilled(ImVec2(x + sz*0.5f, y + sz*0.5f), sz*0.1f, col, 20);
     // scale
     ImVec2 tp = rotate(ImVec2(0.0f, -1.0f), 0);
-    for (float t = min; t <= max; t += (max-min)/10.0f) {
+    for (float t = min; t < max; t += (max-min)/10.0f) {
         float a = gauge_angle(t, min, max);
         ImVec2 rtp = rotate(tp, a);
         draw_list->AddLine(add(c, scale(rtp, sz*0.40f)), add(c, scale(rtp, sz*0.45f)), col, 1.0f);
     }
+    ImVec2 rtp = rotate(tp, 3.0f*PI/4.0f);
+    draw_list->AddLine(add(c, scale(rtp, sz*0.40f)), add(c, scale(rtp, sz*0.45f)), col, 1.0f); // always draw end of scale
 
     // arrow
     static ImVec2 t_arrow[6];
@@ -115,7 +117,7 @@ void ImGui::Gauge(float val, float min, float max, const char *unit, const float
     if (clippedval > max) clippedval = max;
     if (clippedval < min) clippedval = min;
     float a = gauge_angle(clippedval, min, max);
-    for (int i = 0; i < sizeof(arrow)/sizeof(*arrow); i++)
+    for (size_t i = 0; i < sizeof(arrow)/sizeof(*arrow); i++)
         t_arrow[i] = add(c, scale(rotate(arrow[i], a), sz*0.4));
     draw_list->AddConvexPolyFilled(t_arrow, 6, col);
 
