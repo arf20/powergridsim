@@ -75,7 +75,10 @@ void win_hydrogen() {
     ImGui::SameLine();
     ImGui::Gauge(100.0f*t, 0.0f, 3000.0f, "V", 120.0f);
 
-    ImGui::SameLine();
+    ImGui::Separator();
+
+    ImGui::Indicator(1.0f, 1.0f, 1.0f, 1.0f, "control", 24);
+
     ImGui::BeginGroup();
     ImGui::Button("Exciter");
     ImGui::SameLine();
