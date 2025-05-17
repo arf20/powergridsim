@@ -14,6 +14,21 @@ const ImVec2 arrow[] = {
     ImVec2(0.0f, -1.0f),
 };
 
+const ImVec2 knob_white[] = {
+    ImVec2(-0.05f, -1.0f),
+    ImVec2(0.05f, -1.0f),
+    ImVec2(0.05f, -0.25f),
+    ImVec2(-0.05f, -0.25f)
+};
+
+const ImVec2 knob_handle[] = {
+    ImVec2(-0.2f, -1.0f),
+    ImVec2(0.2f, -1.0f),
+    ImVec2(0.2f, 1.4f),
+    ImVec2(-0.2f, 1.4f),
+    ImVec2(-0.2f, -1.0f),
+};
+
 ImVec2 rotate(const ImVec2& v, float a) {
     return ImVec2(
         v.x * cos(a) - v.y * sin(a),
@@ -140,6 +155,10 @@ void ImGui::Gauge(float val, float min, float max, const char *unit, const float
     ImGui::Dummy(ImVec2(sz + 8.0f, sz + 8.0f));
 }
 
+void ImGui::LinearGauge(float val, float min, float max, const char *unit, const float& sz) {
+
+}
+
 void ImGui::Indicator(float state, float r, float g, float b, const char *label, float sz) {
     ImVec2 ts = ImGui::CalcTextSize(label);
     float tw = ts.x;
@@ -162,7 +181,33 @@ void ImGui::Indicator(float state, float r, float g, float b, const char *label,
     ImGui::Dummy(ImVec2(std::max(sz + 8.0f, tw), sz + ts.y + 8.0f));
 }
 
-void ImGui::SwitchKnob(int *state, bool momentary) {
-    
+void ImGui::SwitchKnob(int *state, int positions, bool momentary, const char *label, float sz) {
+    ImVec2 ts = ImGui::CalcTextSize(label);
+    float tw = ts.x;
+    const ImU32 col = ImColor(ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+    const ImVec2 p = ImGui::GetCursorScreenPos();
+    float x = p.x + 4.0f + ((tw-sz)/2);
+    float y = p.y + 4.0f;
+    const ImVec2 c = ImVec2(x + sz*0.5f, y + sz*0.5f);
+
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    // perimeter
+    draw_list->AddCircle(ImVec2(x + sz*0.5f, y + sz*0.5f), sz*0.5f, col, 15, 1.0f);
+
+    // arrow
+    static ImVec2 t_knob[5];
+    for (size_t i = 0; i < 4; i++)
+        t_knob[i] = add(c, scale(rotate(knob_white[i], *state*(PI/2.0f)), sz*0.5f));
+    draw_list->AddConvexPolyFilled(t_knob, 4, col);
+    for (size_t i = 0; i < 5; i++)
+        t_knob[i] = add(c, scale(rotate(knob_handle[i], *state*(PI/2.0f)), sz*0.5f));
+    draw_list->AddPolyline(t_knob, 5, col, 0, 1.0f);
+
+    // label
+    draw_list->AddText(ImVec2(x + sz*0.5f - (tw / 2.0f), y + sz*1.3f), col, label, nullptr);
+
+    ImGui::Dummy(ImVec2(std::max(sz + 8.0f, tw), 1.3f*sz + ts.y + 8.0f));
 }
 
