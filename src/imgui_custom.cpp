@@ -182,6 +182,9 @@ void ImGui::Indicator(float state, float r, float g, float b, const char *label,
 }
 
 void ImGui::SwitchKnob(int *state, int positions, bool momentary, const char *label, float sz) {
+    if (positions < 2 || positions > 3)
+        return;
+
     ImVec2 ts = ImGui::CalcTextSize(label);
     float tw = ts.x;
     const ImU32 col = ImColor(ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -191,6 +194,17 @@ void ImGui::SwitchKnob(int *state, int positions, bool momentary, const char *la
     float y = p.y + 4.0f;
     const ImVec2 c = ImVec2(x + sz*0.5f, y + sz*0.5f);
 
+    // click first
+    ImGui::Dummy(ImVec2(std::max(sz + 8.0f, tw), 1.3f*sz + ts.y + 8.0f));
+    if (ImGui::IsItemHovered()) {
+        if (positions == 3 && ImGui::IsMouseDown(ImGuiMouseButton_Right))
+            *state = -1;
+        else if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+            *state = 1;
+        else if (momentary || (!momentary && positions == 2 && ImGui::IsMouseDown(ImGuiMouseButton_Right)))
+            *state = 0;
+    }
+
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
     // perimeter
@@ -198,16 +212,19 @@ void ImGui::SwitchKnob(int *state, int positions, bool momentary, const char *la
 
     // arrow
     static ImVec2 t_knob[5];
+
+    float angle = *state * ((PI/2.0f)/(positions - 1));
+
     for (size_t i = 0; i < 4; i++)
-        t_knob[i] = add(c, scale(rotate(knob_white[i], *state*(PI/2.0f)), sz*0.5f));
+        t_knob[i] = add(c, scale(rotate(knob_white[i], angle), sz*0.5f));
     draw_list->AddConvexPolyFilled(t_knob, 4, col);
     for (size_t i = 0; i < 5; i++)
-        t_knob[i] = add(c, scale(rotate(knob_handle[i], *state*(PI/2.0f)), sz*0.5f));
+        t_knob[i] = add(c, scale(rotate(knob_handle[i], angle), sz*0.5f));
     draw_list->AddPolyline(t_knob, 5, col, 0, 1.0f);
 
     // label
     draw_list->AddText(ImVec2(x + sz*0.5f - (tw / 2.0f), y + sz*1.3f), col, label, nullptr);
 
-    ImGui::Dummy(ImVec2(std::max(sz + 8.0f, tw), 1.3f*sz + ts.y + 8.0f));
+    
 }
 

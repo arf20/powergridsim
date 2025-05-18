@@ -79,8 +79,10 @@ void win_hydrogen() {
 
     ImGui::Indicator(1.0f, 1.0f, 1.0f, 1.0f, "control", 24);
 
-    static int st = 0;
-    ImGui::SwitchKnob(&st, 3, 1, "Wicket Gate", 48);
+    static int gate = 0;
+    ImGui::SwitchKnob(&gate, 3, true, "Wicket Gate", 48);
+    static int control = 0;
+    ImGui::SwitchKnob(&control, 2, false, "Control", 48);
 
     ImGui::BeginGroup();
     ImGui::Button("Exciter");
