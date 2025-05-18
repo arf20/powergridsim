@@ -159,6 +159,8 @@ void ImGui::LinearGauge(float val, float min, float max, const char *unit, const
 
 }
 
+
+
 void ImGui::Indicator(float state, float r, float g, float b, const char *label, float sz) {
     ImVec2 ts = ImGui::CalcTextSize(label);
     float tw = ts.x;
@@ -181,21 +183,31 @@ void ImGui::Indicator(float state, float r, float g, float b, const char *label,
     ImGui::Dummy(ImVec2(std::max(sz + 8.0f, tw), sz + ts.y + 8.0f));
 }
 
-void ImGui::SwitchKnob(int *state, int positions, bool momentary, const char *label, float sz) {
+void AddTextCentered(const ImVec2& pos, ImU32 col, const char* text_begin, ImDrawList* draw_list) {
+    ImVec2 ts = ImGui::CalcTextSize(text_begin);
+    draw_list->AddText({pos.x - (ts.x / 2), pos.y}, col, text_begin);
+}
+
+void AddTextLeft(const ImVec2& pos, ImU32 col, const char* text_begin, ImDrawList* draw_list) {
+    ImVec2 ts = ImGui::CalcTextSize(text_begin);
+    draw_list->AddText({pos.x - ts.x, pos.y}, col, text_begin);
+}
+
+void ImGui::SwitchKnob(int *state, int positions, bool momentary, const char *label, std::vector<const char*> poslbls, float sz) {
     if (positions < 2 || positions > 3)
         return;
 
-    ImVec2 ts = ImGui::CalcTextSize(label);
-    float tw = ts.x;
+    ImVec2 tsc = ImGui::CalcTextSize(label);
+    ImVec2 tsl = ImGui::CalcTextSize(poslbls[0]);
     const ImU32 col = ImColor(ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
     const ImVec2 p = ImGui::GetCursorScreenPos();
-    float x = p.x + 4.0f + ((tw-sz)/2);
-    float y = p.y + 4.0f;
+    float x = p.x + 4.0f + ((tsc.x-sz)/2) + ((positions == 3) * (tsl.x - 24.0f));
+    float y = p.y + 24.0f;
     const ImVec2 c = ImVec2(x + sz*0.5f, y + sz*0.5f);
 
     // click first
-    ImGui::Dummy(ImVec2(std::max(sz + 8.0f, tw), 1.3f*sz + ts.y + 8.0f));
+    ImGui::Dummy(ImVec2(std::max(sz + 8.0f, tsc.x), 1.3f*sz + tsc.y + 28.0f));
     if (ImGui::IsItemHovered()) {
         if (positions == 3 && ImGui::IsMouseDown(ImGuiMouseButton_Right))
             *state = -1;
@@ -206,6 +218,17 @@ void ImGui::SwitchKnob(int *state, int positions, bool momentary, const char *la
     }
 
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    // position labels
+    for (int i = -1 * (positions - 2); i < 2; i++) {
+        if (i == -1)
+            AddTextLeft(ImVec2(x + 4.0f, y + (sz * 0.5f) - 6.0f - (24.0f * (positions - 2))), col, poslbls[i + (1 * (positions - 2))], draw_list);
+        else if (i == 0)
+            AddTextCentered(ImVec2(x + sz*0.5f, y - 20.0f), col, poslbls[i + (1 * (positions - 2))], draw_list);
+        else if (i == 1)
+            draw_list->AddText(ImVec2(x + sz + 4.0f, y + (sz * 0.5f) - 6.0f - (24.0f * (positions - 2))), col, poslbls[i + (1 * (positions - 2))]);
+        
+    }
 
     // perimeter
     draw_list->AddCircle(ImVec2(x + sz*0.5f, y + sz*0.5f), sz*0.5f, col, 15, 1.0f);
@@ -223,7 +246,7 @@ void ImGui::SwitchKnob(int *state, int positions, bool momentary, const char *la
     draw_list->AddPolyline(t_knob, 5, col, 0, 1.0f);
 
     // label
-    draw_list->AddText(ImVec2(x + sz*0.5f - (tw / 2.0f), y + sz*1.3f), col, label, nullptr);
+    draw_list->AddText(ImVec2(x + sz*0.5f - (tsc.x / 2.0f), y + sz*1.3f), col, label);
 
     
 }
